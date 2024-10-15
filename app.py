@@ -4,7 +4,7 @@ import sqlite3
 from main import MainApplication
 
 # Load environment variables from .env file
-DATABASE_FILE = 'styledb.db'
+DATABASE_FILE = 'backend/styledb.db'
 app = Flask(__name__)
 
 # Establish connection with the MySQL database
@@ -149,11 +149,12 @@ def get_sizes():
 @app.route('/api/genders', methods=['GET'])
 def get_genders():
     connection = get_connection()
+    cursor = connection.cursor()
     try:
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT id, gender FROM gender_products')
-            genders = cursor.fetchall()
+        cursor.execute('SELECT id, gender FROM gender_products')
+        genders = [dict(row) for row in cursor.fetchall()]
         return jsonify(genders)
+    
     except sqlite3.Error as e:
         print(f'Error: {e}')
         return jsonify({'error': 'An error occurred while fetching genders'}), 500
